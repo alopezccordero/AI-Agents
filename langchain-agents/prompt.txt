@@ -1,0 +1,1 @@
+can you use the threaded_agents_multiple_prompts to create 3 python scripts (one to multiply two input ints, the second one to divide two input ints, the third one to add two input ints

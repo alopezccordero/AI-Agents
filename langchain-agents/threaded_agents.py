@@ -59,7 +59,9 @@ def threaded_agents(num_threads: int, prompt: str):
     """
     This tool is to create multiple threaded agents
     that can execute in parallel and have access to terminal  
-    num_threads =  
+    num_threads =  num_agents
+    prompt = the single prompt that each agent will execute
+
     """
     threads = []
     results = [None] * num_threads
@@ -81,6 +83,34 @@ def threaded_agents(num_threads: int, prompt: str):
         for i, result in enumerate(results)
     )
 
+
+@tool
+def threaded_agents_multiple_prompts(prompts: list ):
+    """
+    this tool is to create multiple_threaded_agents that execute multiple
+    prompts
+    prompts is a list. len(prompts) is the number of agents that will be created
+    each agent will execute its prompt respectively 
+    """
+    threads = []
+    results = [None] * len(prompts)
+    def worker_wrapper(index, prompt):
+        results[index] = new_agent.invoke(prompt)
+    for i in range(len(prompts)):
+        t = threading.Thread(target=worker_wrapper, args=(i, prompts[i]))
+        threads.append(t)
+        t.start()
+    for t in threads:
+        t.join()
+    print("All threaded agents have completed")
+
+    return "\n\n".join(
+        f"agent {i} : {result}"
+        for i, result in enumerate(results)
+    )
+
+
+
 worker = create_agent(
     model = config.employee,
     tools=[terminal],
@@ -93,7 +123,7 @@ You can use the tool terminal to handle files and commands
 
 manager = create_agent(
     model = config.llm,
-    tools=[terminal, threaded_agents, new_agent],
+    tools=[terminal, threaded_agents, threaded_agents_multiple_prompts, new_agent],
     system_prompt="""
 You are a an assistant with access to tools terminal, create_agent, threaded_agents
 
@@ -103,6 +133,9 @@ use:
 - threaded_agents for delegating multiple tasks to multiple agents (they are threaded so 
 they execute in parallel) - num_threads (num of agents) - prompt (single prompt that will be executed
 by different agents)
+- threaded_agents_multiple_prompts for delegating multiple tasks to multiple agents (they are threaded
+so they execute in parallel) - it takes a list of prompts, and each index in the list is an agent
+that executes the prompt in that index
 
 after receiving the repsonse. provide a final answer
 """
