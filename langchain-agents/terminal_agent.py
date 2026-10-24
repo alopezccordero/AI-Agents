@@ -49,12 +49,8 @@ worker = create_agent(
     tools=[terminal],
     system_prompt="""
 You are a worker agent.
-
-Your job is to complete tasks delegated by the supervisor.
-
-When appropriate, use the terminal tool.
-
-Return a concise final answer.
+Your job is to complete the prompts that are given to you
+You can use the tool terminal to handle files
 """
 )
 
@@ -66,7 +62,9 @@ Return a concise final answer.
 @tool
 def employees(prompt: str) -> str:
     """
-    Delegate work to a worker agent.
+    Use this tool to delegate tasks to a worker
+    agent. you can use this tool repeatedly
+    to delegate multiple tasks.
     """
 
     print("\n[WORKER STARTED]")
@@ -97,7 +95,7 @@ You are an assistant with access to a terminal and worker agents.
 
 Use:
 - terminal for simple filesystem or command tasks.
-- employees for tasks requiring deeper reasoning.
+- employees for delegating tasks to new agents.
 
 Do not repeatedly call employees for the same task.
 
